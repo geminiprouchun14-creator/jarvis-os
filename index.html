@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="J.A.R.V.I.S." />
+  <title>J.A.R.V.I.S. OS — Mark LXXXV</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00f0ff;
+      --primary-dim: rgba(0, 240, 255, 0.25);
+      --primary-bg: rgba(0, 240, 255, 0.06);
+      --bg-dark: #030b12;
+      --glow: 0 0 30px rgba(0, 240, 255, 0.7);
+    }
+    [data-theme="red"] {
+      --primary: #ff3b3b;
+      --primary-dim: rgba(255, 59, 59, 0.3);
+      --primary-bg: rgba(255, 59, 59, 0.08);
+      --bg-dark: #120303;
+      --glow: 0 0 30px rgba(255, 59, 59, 0.75);
+    }
+    [data-theme="gold"] {
+      --primary: #ffcc00;
+      --primary-dim: rgba(255, 204, 0, 0.3);
+      --primary-bg: rgba(255, 204, 0, 0.07);
+      --bg-dark: #120e02;
+      --glow: 0 0 30px rgba(255, 204, 0, 0.75);
+    }
+    [data-theme="green"] {
+      --primary: #00ff66;
+      --primary-dim: rgba(0, 255, 102, 0.28);
+      --primary-bg: rgba(0, 255, 102, 0.06);
+      --bg-dark: #021208;
+      --glow: 0 0 30px rgba(0, 255, 102, 0.75);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    body {
+      background: radial-gradient(circle at 50% 25%, var(--bg-dark) 0%, #010408 100%);
+      color: var(--primary);
+      font-family: 'Rajdhani', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      transition: all 0.3s ease;
+    }
+    .hud-font { font-family: 'Orbitron', sans-serif; }
+    .hud-box {
+      background: var(--primary-bg);
+      border: 1px solid var(--primary-dim);
+      backdrop-filter: blur(10px);
+    }
+    .hud-btn {
+      background: var(--primary-bg);
+      border: 1px solid var(--primary-dim);
+      color: var(--primary);
+      transition: all 0.15s;
+    }
+    .hud-btn:active {
+      transform: scale(0.96);
+      background: var(--primary);
+      color: #000;
+    }
+    .arc-ring-outer {
+      border: 2px dashed var(--primary);
+      opacity: 0.65;
+      animation: spinRight 14s linear infinite;
+    }
+    .arc-ring-inner {
+      border: 4px solid transparent;
+      border-top: 4px solid var(--primary);
+      border-bottom: 4px solid var(--primary);
+      animation: spinLeft 5s linear infinite;
+    }
+    .arc-core {
+      background: radial-gradient(circle, #ffffff 0%, var(--primary) 55%, transparent 100%);
+      box-shadow: var(--glow);
+      transition: transform 0.2s;
+    }
+    .listening .arc-core {
+      transform: scale(1.12);
+      filter: hue-rotate(140deg);
+    }
+    @keyframes spinRight { 100% { transform: rotate(360deg); } }
+    @keyframes spinLeft { 100% { transform: rotate(-360deg); } }
+    .tab-page { display: none; }
+    .tab-page.active { display: flex; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--primary-dim); border-radius: 4px; }
+  </style>
+</head>
+<body data-theme="cyan" class="flex flex-col justify-between">
+
+  <!-- GHOST MODE OVERLAY -->
+  <div id="ghost-screen" onclick="toggleGhostMode()" class="hidden fixed inset-0 bg-black z-50 flex flex-col items-center justify-center">
+    <div class="w-3 h-3 rounded-full bg-cyan-500 animate-ping mb-4"></div>
+    <p class="hud-font text-xs tracking-widest text-gray-600">GHOST PROTOCOL ACTIVE • OCHISH UCHUN BOSING</p>
+  </div>
+
+  <!-- YUQORI HUD STATUS PANEL -->
+  <header class="px-3 pt-2 pb-1 z-20">
+    <div class="hud-box rounded-xl px-3 py-2 flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="hud-font text-sm font-black tracking-widest">J.A.R.V.I.S.</span>
+          <span id="mark-badge" class="text-[10px] px-1.5 py-0.5 rounded border border-current hud-font">MARK I</span>
+        </div>
+        <p id="status-line" class="text-[11px] opacity-80 font-semibold">JANOB BEXZOD • TIZIM SHAY</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="hud-clock" class="hud-font text-xs font-bold">00:00</span>
+        <button onclick="toggleGhostMode()" title="Ghost Mode" class="hud-btn px-2 py-1 rounded text-xs">👁️</button>
+        <button onclick="switchTab('settings')" class="hud-btn px-2 py-1 rounded text-xs hud-font">⚙️</button>
+      </div>
+    </div>
+
+    <!-- AI Miya Rejimlari -->
+    <div class="flex gap-1.5 overflow-x-auto pt-2 pb-1">
+      <button onclick="setPersona('jarvis')" id="p-jarvis" class="hud-btn px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 bg-white/10">🤖 JARVIS</button>
+      <button onclick="setPersona('ielts')" id="p-ielts" class="hud-btn px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0">🇬🇧 IELTS Mentor</button>
+      <button onclick="setPersona('railway')" id="p-railway" class="hud-btn px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0">🚄 Afrosiyob Muhandis</button>
+      <button onclick="setPersona('coder')" id="p-coder" class="hud-btn px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0">💻 Python Dev</button>
+      <button onclick="setPersona('creator')" id="p-creator" class="hud-btn px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0">🎬 Shorts Rejissyor</button>
+    </div>
+  </header>
+
+  <!-- ==================== 1. ASOSIY HUD VA AI MARKAZ ==================== -->
+  <section id="tab-core" class="tab-page active flex-1 flex-col px-3 overflow-hidden">
+    <div class="flex items-center justify-between py-2 px-2">
+      <div class="text-[11px] space-y-1 opacity-85">
+        <div>⚡ TIZIM: <span class="font-bold">99.8%</span></div>
+        <div>📍 MANZIL: <span class="font-bold">TOSHKENT</span></div>
+        <div>🎓 GURUH: <span class="font-bold">TVL-25-26</span></div>
+      </div>
+
+      <div id="reactor-box" onclick="toggleVoice()" class="relative w-32 h-32 flex items-center justify-center cursor-pointer shrink-0">
+        <div class="arc-ring-outer absolute inset-0 rounded-full"></div>
+        <div class="arc-ring-inner absolute inset-2.5 rounded-full"></div>
+        <div class="arc-core w-16 h-16 rounded-full flex items-center justify-center">
+          <span class="hud-font text-[10px] font-black text-black">OVOZ</span>
+        </div>
+      </div>
+
+      <div class="text-[11px] space-y-1 text-right opacity-85">
+        <div>🧠 XP: <span id="xp-display" class="font-bold">10</span></div>
+        <div>🔋 BAT: <span id="bat-display" class="font-bold">100%</span></div>
+        <div>🛡️ HIMOYA: <span class="font-bold">FAOL</span></div>
+      </div>
+    </div>
+
+    <!-- Tezkor Buyruqlar -->
+    <div class="flex gap-1.5 overflow-x-auto pb-2 shrink-0">
+      <button onclick="quickPrompt('Ertalabki brifing: ob-havo, dars jadvali va kunlik motivatsiya ber')" class="hud-btn px-2.5 py-1 rounded-full text-[11px] shrink-0">☀️ Tonggi Brifing</button>
+      <button onclick="quickPrompt('Bugun o‘rganish uchun 5 ta yangi inglizcha so‘z va misollar ber')" class="hud-btn px-2.5 py-1 rounded-full text-[11px] shrink-0">📚 5 ta Yangi So‘z</button>
+      <button onclick="quickPrompt('YouTube Shorts uchun 60 soniyalik zo‘r g‘oya va ssenariy tuz')" class="hud-btn px-2.5 py-1 rounded-full text-[11px] shrink-0">🎥 Shorts Ssenariy</button>
+      <button onclick="quickPrompt('Afrosiyob tezyurar poyezdining texnik xususiyatlarini qisqacha tushuntir')" class="hud-btn px-2.5 py-1 rounded-full text-[11px] shrink-0">🚄 Afrosiyob Info</button>
+    </div>
+
+    <!-- Jonli Dialog Oynasi -->
+    <div id="chat-feed" class="flex-1 overflow-y-auto space-y-2 pr-1 pb-2">
+      <div class="hud-box p-3 rounded-xl text-sm">
+        <span class="hud-font text-xs font-bold">JARVIS:</span> Xush kelibsiz, janob Bexzod. Barcha modullar tayyor. AI muloqotni faollashtirish uchun pastki o‘ng burchakdagi <b>TIZIM (⚙️)</b> bo‘limiga API kalitingizni kiriting.
+      </div>
+    </div>
+
+    <!-- Pastki Buyruq Kiritish Paneli -->
+    <div class="hud-box p-1.5 rounded-xl flex gap-1.5 items-center my-1.5">
+      <button onclick="speakLastReply()" title="Ovozda o‘qish" class="hud-btn px-2.5 py-2 rounded-lg text-xs">🔊</button>
+      <input id="user-input" onkeypress="if(event.key==='Enter') handleSend()" type="text" placeholder="Buyruq yoki savol yozing..." class="flex-1 bg-transparent px-2 py-1.5 text-sm outline-none placeholder-current/40" />
+      <button onclick="handleSend()" class="hud-btn px-3 py-2 rounded-lg text-xs hud-font font-bold">YUBORISH</button>
+    </div>
+  </section>
+
+  <!-- ==================== 2. UZBMASHINIST & POMODORO STUDIO ==================== -->
+  <section id="tab-sim" class="tab-page flex-1 flex-col px-3 overflow-y-auto space-y-3 pb-3">
+    <div class="hud-box p-3.5 rounded-xl">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="hud-font text-xs font-bold">🚄 UZBMASHINIST • AFROSIYOB CABIN HUD</h2>
+        <span id="train-signal" class="px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-bold">YASHIL CHIROQ</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center my-3">
+        <div class="hud-box p-2 rounded-lg">
+          <div class="text-[10px] opacity-70">TEZLIK</div>
+          <div id="train-speed" class="hud-font text-xl font-black">0</div>
+          <div class="text-[10px]">km/soat</div>
+        </div>
+        <div class="hud-box p-2 rounded-lg">
+          <div class="text-[10px] opacity-70">TORMOZ BOSIMI</div>
+          <div id="train-brake" class="hud-font text-xl font-black">5.2</div>
+          <div class="text-[10px]">atm</div>
+        </div>
+        <div class="hud-box p-2 rounded-lg">
+          <div class="text-[10px] opacity-70">MARSHRUT</div>
+          <div class="text-xs font-bold mt-1">TOSHKENT ➔ SAMARQAND</div>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="changeSpeed(25)" class="hud-btn flex-1 py-2 rounded-lg text-xs font-bold">⚡ TORTISH (+25)</button>
+        <button onclick="changeSpeed(-30)" class="hud-btn flex-1 py-2 rounded-lg text-xs font-bold">🛑 TORMOZ (-30)</button>
+        <button onclick="trainHorn()" class="hud-btn px-3 py-2 rounded-lg text-xs font-bold">📯 TIFON</button>
+      </div>
+    </div>
+
+    <!-- Pomodoro Focus Taymer -->
+    <div class="hud-box p-3.5 rounded-xl flex items-center justify-between">
+      <div>
+        <h3 class="hud-font text-xs font-bold">⏱️ POMODORO FOCUS (TDTU / IELTS)</h3>
+        <p class="text-xs opacity-75">25 daqiqa chuqur o‘qish rejimi</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="pomo-timer" class="hud-font text-lg font-black">25:00</span>
+        <button onclick="togglePomodoro()" id="pomo-btn" class="hud-btn px-3 py-1.5 rounded-lg text-xs font-bold">BOSHLASH</button>
+      </div>
+    </div>
+
+    <!-- BPM Musiqa Metronomi -->
+    <div class="hud-box p-3.5 rounded-xl">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="hud-font text-xs font-bold">🎵 BPM RITM STUDIYASI (TREK YOZISH)</h3>
+        <span id="bpm-val" class="hud-font text-xs font-bold">95 BPM</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="range" min="60" max="160" value="95" oninput="updateBpm(this.value)" class="flex-1 accent-cyan-400" />
+        <button onclick="toggleMetronome()" id="metro-btn" class="hud-btn px-3 py-1.5 rounded-lg text-xs font-bold">START</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 3. KUNDALIK VAZIFALAR & MOLIYA ==================== -->
+  <section id="tab-life" class="tab-page flex-1 flex-col px-3 overflow-y-auto space-y-3 pb-3">
+    <div class="hud-box p-3.5 rounded-xl">
+      <h2 class="hud-font text-xs font-bold mb-2">📋 KUNLIK REJA VA VAZIFALAR</h2>
+      <div class="flex gap-1.5 mb-2">
+        <input id="todo-input" type="text" placeholder="Yangi vazifa (masalan: IELTS 20 ta so‘z)..." class="flex-1 bg-black/40 border border-current/25 rounded-lg px-2.5 py-1.5 text-xs outline-none" />
+        <button onclick="addTodo()" class="hud-btn px-3 py-1.5 rounded-lg text-xs font-bold">+</button>
+      </div>
+      <ul id="todo-list" class="space-y-1.5 text-xs"></ul>
+    </div>
+
+    <div class="hud-box p-3.5 rounded-xl">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="hud-font text-xs font-bold">💳 XARAJATLAR NAZORATI</h2>
+        <span id="total-expense" class="hud-font text-xs font-bold">0 SO‘M</span>
+      </div>
+      <div class="flex gap-1.5 mb-2">
+        <input id="exp-name" type="text" placeholder="Nima uchun?" class="w-1/2 bg-black/40 border border-current/25 rounded-lg px-2 py-1.5 text-xs outline-none" />
+        <input id="exp-amount" type="number" placeholder="Summa" class="w-1/3 bg-black/40 border border-current/25 rounded-lg px-2 py-1.5 text-xs outline-none" />
+        <button onclick="addExpense()" class="hud-btn flex-1 py-1.5 rounded-lg text-xs font-bold">+</button>
+      </div>
+      <div id="exp-list" class="space-y-1 text-xs max-h-28 overflow-y-auto"></div>
+    </div>
+
+    <div class="hud-box p-3.5 rounded-xl">
+      <h2 class="hud-font text-xs font-bold mb-2">📲 TEZKOR QR-KOD GENERATORI</h2>
+      <div class="flex gap-1.5">
+        <input id="qr-input" type="text" placeholder="Havola yoki matn kiriting..." class="flex-1 bg-black/40 border border-current/25 rounded-lg px-2.5 py-1.5 text-xs outline-none" />
+        <button onclick="generateQR()" class="hud-btn px-3 py-1.5 rounded-lg text-xs font-bold">YARATISH</button>
+      </div>
+      <div id="qr-result" class="mt-2 flex justify-center"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 4. KIBERXAVFSIZLIK & SEYF ==================== -->
+  <section id="tab-sec" class="tab-page flex-1 flex-col px-3 overflow-y-auto space-y-3 pb-3">
+    <div class="hud-box p-3.5 rounded-xl">
+      <h2 class="hud-font text-xs font-bold mb-2">🔐 MAXFIY KALITLAR SEYFI (VAULT)</h2>
+      <div class="flex gap-1.5 mb-2">
+        <input id="vault-title" type="text" placeholder="Xizmat nomi (GitHub, Bot...)" class="w-1/2 bg-black/40 border border-current/25 rounded-lg px-2 py-1.5 text-xs outline-none" />
+        <input id="vault-secret" type="password" placeholder="Parol / Token" class="w-1/3 bg-black/40 border border-current/25 rounded-lg px-2 py-1.5 text-xs outline-none" />
+        <button onclick="saveVault()" class="hud-btn flex-1 py-1.5 rounded-lg text-xs font-bold">SAQLASH</button>
+      </div>
+      <div id="vault-list" class="space-y-1.5 text-xs"></div>
+    </div>
+
+    <div class="hud-box p-3.5 rounded-xl">
+      <h2 class="hud-font text-xs font-bold mb-2">🛡️ HAVOLA XAVFSIZLIK SKANERI</h2>
+      <div class="flex gap-1.5">
+        <input id="scan-url" type="text" placeholder="https://..." class="flex-1 bg-black/40 border border-current/25 rounded-lg px-2.5 py-1.5 text-xs outline-none" />
+        <button onclick="scanLink()" class="hud-btn px-3 py-1.5 rounded-lg text-xs font-bold">SKANER</button>
+      </div>
+      <p id="scan-output" class="text-xs mt-2 opacity-85"></p>
+    </div>
+
+    <div class="hud-box p-3.5 rounded-xl text-xs space-y-1.5">
+      <h2 class="hud-font text-xs font-bold mb-1">📡 TIZIM DIAGNOSTIKASI</h2>
+      <div>Brauzer / OS: <span class="font-bold">iPhone iOS</span></div>
+      <div>Internet holati: <span class="font-bold text-green-400">ONLAYN</span></div>
+      <div>Ekran o‘lchami: <span id="diag-res" class="font-bold"></span></div>
+    </div>
+  </section>
+
+  <!-- ==================== 5. SOZLAMALAR VA TEMALAR ==================== -->
+  <section id="tab-settings" class="tab-page flex-1 flex-col px-3 overflow-y-auto space-y-3 pb-3">
+    <div class="hud-box p-3.5 rounded-xl">
+      <h2 class="hud-font text-xs font-bold mb-2">🎨 HUD RANG TEMASI</h2>
+      <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+        <button onclick="setTheme('cyan')" class="hud-btn py-2 rounded-lg border-cyan-400 text-cyan-300">🔵 J.A.R.V.I.S. (KO‘K)</button>
+        <button onclick="setTheme('red')" class="hud-btn py-2 rounded-lg border-red-500 text-red-400">🔴 HULKBUSTER (QIZIL)</button>
+        <button onclick="setTheme('gold')" class="hud-btn py-2 rounded-lg border-yellow-400 text-yellow-300">🟡 MARK 85 (OLTIN)</button>
+        <button onclick="setTheme('green')" class="hud-btn py-2 rounded-lg border-green-400 text-green-400">🟢 MATRIX (YASHIL)</button>
+      </div>
+    </div>
+
+    <div class="hud-box p-3.5 rounded-xl">
+      <h2 class="hud-font text-xs font-bold mb-2">🔑 GEMINI API KALIT</h2>
+      <input id="api-key-field" type="password" placeholder="API kalitni shu yerga kiriting..." class="w-full bg-black/50 border border-current/30 rounded-lg px-2.5 py-2 text-xs mb-2 outline-none" />
+      <button onclick="updateApiKey()" class="hud-btn w-full py-2 rounded-lg text-xs hud-font font-bold">KALITNI SAQLASH</button>
+    </div>
+
+    <div class="hud-box p-3.5 rounded-xl space-y-2">
+      <h2 class="hud-font text-xs font-bold">💾 XOTIRA VA XAVFSIZLIK PROTOKOLLARI</h2>
+      <button onclick="exportMemory()" class="hud-btn w-full py-2 rounded-lg text-xs font-bold">📥 BARCHA MA’LUMOTLARNI YUKLAB OLISH (BACKUP)</button>
+      <button onclick="cleanSlate()" class="w-full py-2 rounded-lg text-xs font-bold bg-red-600/30 border border-red-500 text-red-300">⚠️ PROTOCOL CLEAN SLATE (TOZALASH)</button>
+    </div>
+  </section>
+
+  <!-- PASTKI ASOSIY NAVIGATSIYA -->
+  <nav class="hud-box mx-3 mb-2 rounded-xl flex justify-around py-2 z-20">
+    <button onclick="switchTab('core')" class="flex flex-col items-center text-[10px] hud-font font-bold">
+      <span class="text-base">⚛️</span>
+      <span>JARVIS</span>
+    </button>
+    <button onclick="switchTab('sim')" class="flex flex-col items-center text-[10px] hud-font font-bold">
+      <span class="text-base">🚄</span>
+      <span>PULT</span>
+    </button>
+    <button onclick="switchTab('life')" class="flex flex-col items-center text-[10px] hud-font font-bold">
+      <span class="text-base">📊</span>
+      <span>REJA</span>
+    </button>
+    <button onclick="switchTab('sec')" class="flex flex-col items-center text-[10px] hud-font font-bold">
+      <span class="text-base">🛡️</span>
+      <span>HIMOYA</span>
+    </button>
+    <button onclick="switchTab('settings')" class="flex flex-col items-center text-[10px] hud-font font-bold">
+      <span class="text-base">⚙️</span>
+      <span>TIZIM</span>
+    </button>
+  </nav>
+
+  <script>
+    let apiKey = localStorage.getItem('jarvis_api_key') || "";
+    let currentPersona = 'jarvis';
+    let lastJarvisReply = "Xush kelibsiz, janob Bexzod.";
+    let xp = parseInt(localStorage.getItem('jarvis_xp') || '10');
+    let chatHistory = JSON.parse(localStorage.getItem('jarvis_history') || '[]');
+
+    const personas = {
+      jarvis: "Sen Tony Starkning J.A.R.V.I.S. sun'iy intellektisan. Foydalanuvchi Bexzodga hurmat bilan ('janob Bexzod' deb), aqlli, qisqa va aniq o'zbek tilida javob ber.",
+      ielts: "You are an elite IELTS Speaking & English tutor for Bexzod. Reply ONLY in natural English, keep the conversation engaging, and gently correct any grammar mistakes at the end of your reply.",
+      railway: "Sen temir yo'l transporti va Afrosiyob tezyurar poyezdlari bo'yicha bosh muhandissan. Bexzodga (TDTU talabasiga) texnik, aniq va kasbiy tilda tushuntir.",
+      coder: "Sen Senior Python va Web dasturchisan. Telegram botlar, AI va kodlar bo'yicha eng optimal yechim va tayyor kod ber.",
+      creator: "Sen YouTube Shorts va Instagram Reels bo'yicha kreativ rejissyorsan. Ssenariy, kadrlar ketma-ketligi va AI video promptlar tuzib ber."
+    };
+
+    window.onload = () => {
+      document.getElementById('api-key-field').value = apiKey;
+      document.getElementById('diag-res').innerText = `${window.innerWidth}x${window.innerHeight}`;
+      const savedTheme = localStorage.getItem('jarvis_theme') || 'cyan';
+      setTheme(savedTheme);
+      updateXP(0);
+      renderTodos();
+      renderExpenses();
+      renderVault();
+      if (navigator.getBattery) {
+        navigator.getBattery().then(b => {
+          document.getElementById('bat-display').innerText = Math.round(b.level * 100) + '%';
+        });
+      }
+    };
+
+    setInterval(() => {
+      document.getElementById('hud-clock').innerText = new Date().toTimeString().slice(0, 5);
+    }, 1000);
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab-page').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    function setTheme(theme) {
+      document.body.setAttribute('data-theme', theme);
+      localStorage.setItem('jarvis_theme', theme);
+    }
+
+    function toggleGhostMode() {
+      document.getElementById('ghost-screen').classList.toggle('hidden');
+    }
+
+    function setPersona(p) {
+      currentPersona = p;
+      document.querySelectorAll('[id^="p-"]').forEach(b => b.classList.remove('bg-white/20'));
+      document.getElementById('p-' + p).classList.add('bg-white/20');
+      appendChat('JARVIS', `Rejim o‘zgartirildi: ${p.toUpperCase()}`);
+    }
+
+    function updateXP(points) {
+      xp += points;
+      localStorage.setItem('jarvis_xp', xp);
+      document.getElementById('xp-display').innerText = xp;
+      const markLevel = Math.min(85, Math.floor(xp / 20) + 1);
+      document.getElementById('mark-badge').innerText = `MARK ${markLevel}`;
+    }
+
+    function appendChat(sender, text) {
+      const feed = document.getElementById('chat-feed');
+      const div = document.createElement('div');
+      div.className = 'hud-box p-3 rounded-xl text-sm whitespace-pre-wrap';
+      div.innerHTML = `<span class="hud-font text-xs font-bold">${sender}:</span> ${text}`;
+      feed.appendChild(div);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
+    if (SpeechRec) {
+      rec = new SpeechRec();
+      rec.lang = 'en-US';
+      rec.onstart = () => {
+        document.getElementById('reactor-box').classList.add('listening');
+        document.getElementById('status-line').innerText = 'OVOZ ESHITILMOQDA...';
+      };
+      rec.onend = () => {
+        document.getElementById('reactor-box').classList.remove('listening');
+        document.getElementById('status-line').innerText = 'JANOB BEXZOD • TIZIM SHAY';
+      };
+      rec.onresult = (e) => {
+        const text = e.results[0][0].transcript;
+        document.getElementById('user-input').value = text;
+        handleSend();
+      };
+    }
+
+    function toggleVoice() {
+      if (!rec) {
+        appendChat('JARVIS', 'Brauzer mikrofonni ochmadi, pastdagi maydonga yozing.');
+        return;
+      }
+      rec.start();
+    }
+
+    function speakLastReply() {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(lastJarvisReply);
+      u.lang = currentPersona === 'ielts' ? 'en-US' : 'ru-RU';
+      u.rate = 1.0;
+      window.speechSynthesis.speak(u);
+    }
+
+    function quickPrompt(text) {
+      document.getElementById('user-input').value = text;
+      handleSend();
+    }
+
+    async function handleSend() {
+      const input = document.getElementById('user-input');
+      const prompt = input.value.trim();
+      if (!prompt) return;
+      input.value = '';
+      appendChat('BEXZOD', prompt);
+
+      if (prompt.toLowerCase().includes('ghost')) { toggleGhostMode(); return; }
+
+      if (!apiKey) {
+        lastJarvisReply = "Janob Bexzod, AI javob berishi uchun pastdagi TIZIM (⚙️) tugmasini bosib, Gemini API kalitingizni bir marta saqlang.";
+        appendChat('JARVIS', lastJarvisReply);
+        return;
+      }
+
+      document.getElementById('status-line').innerText = 'AI YADRO TAHLIL QILMOQDA...';
+
+      try {
+        const isGoogleKey = apiKey.startsWith('AIza');
+        const url = isGoogleKey
+          ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`
+          : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (!isGoogleKey) headers['Authorization'] = `Bearer ${apiKey}`;
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: `${personas[currentPersona]}\n\nFoydalanuvchi xabari: ${prompt}` }]
+            }]
+          })
+        });
+
+        const data = await response.json();
+        if (data.error) {
+          lastJarvisReply = `API xatosi: ${data.error.message}`;
+        } else {
+          lastJarvisReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Javob olinmadi.";
+          updateXP(10);
+        }
+      } catch (e) {
+        lastJarvisReply = "Tarmoqqa ulanishda xatolik yuz berdi, janob.";
+      }
+
+      appendChat('JARVIS', lastJarvisReply);
+      chatHistory.push({ q: prompt, a: lastJarvisReply });
+      localStorage.setItem('jarvis_history', JSON.stringify(chatHistory.slice(-30)));
+      document.getElementById('status-line').innerText = 'JANOB BEXZOD • TIZIM SHAY';
+    }
+
+    let speed = 0;
+    function changeSpeed(delta) {
+      speed = Math.max(0, Math.min(250, speed + delta));
+      document.getElementById('train-speed').innerText = speed;
+      document.getElementById('train-brake').innerText = delta < 0 ? '3.8' : '5.2';
+      const sig = document.getElementById('train-signal');
+      if (speed > 210) {
+        sig.innerText = 'TEZLIK CHEGARASI!';
+        sig.className = 'px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold';
+      } else {
+        sig.innerText = 'YASHIL CHIROQ';
+        sig.className = 'px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-bold';
+      }
+    }
+    function trainHorn() {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.value = 185;
+      o.connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 0.6);
+    }
+
+    let pomoSeconds = 25 * 60, pomoInterval = null;
+    function togglePomodoro() {
+      const btn = document.getElementById('pomo-btn');
+      if (pomoInterval) {
+        clearInterval(pomoInterval);
+        pomoInterval = null;
+        btn.innerText = 'DAVOM ETISH';
+      } else {
+        btn.innerText = 'PAUZA';
+        pomoInterval = setInterval(() => {
+          pomoSeconds--;
+          const m = String(Math.floor(pomoSeconds / 60)).padStart(2, '0');
+          const s = String(pomoSeconds % 60).padStart(2, '0');
+          document.getElementById('pomo-timer').innerText = `${m}:${s}`;
+          if (pomoSeconds <= 0) { clearInterval(pomoInterval); alert("Vaqt tugadi, janob!"); }
+        }, 1000);
+      }
+    }
+
+    let bpm = 95, metroInterval = null;
+    function updateBpm(val) {
+      bpm = val;
+      document.getElementById('bpm-val').innerText = `${val} BPM`;
+    }
+    function toggleMetronome() {
+      const btn = document.getElementById('metro-btn');
+      if (metroInterval) {
+        clearInterval(metroInterval);
+        metroInterval = null;
+        btn.innerText = 'START';
+      } else {
+        btn.innerText = 'STOP';
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        metroInterval = setInterval(() => {
+          const o = ctx.createOscillator();
+          o.frequency.value = 880;
+          o.connect(ctx.destination);
+          o.start();
+          o.stop(ctx.currentTime + 0.05);
+        }, (60 / bpm) * 1000);
+      }
+    }
+
+    let todos = JSON.parse(localStorage.getItem('jarvis_todos') || '["TDTU darslariga tayyorlanish", "IELTS 15 ta yangi so‘z"]');
+    function renderTodos() {
+      const list = document.getElementById('todo-list');
+      list.innerHTML = todos.map((t, i) => `
+        <li class="hud-box px-2.5 py-1.5 rounded-lg flex justify-between items-center">
+          <span>▫️ ${t}</span>
+          <button onclick="removeTodo(${i})" class="text-red-400 font-bold">✕</button>
+        </li>`).join('');
+    }
+    function addTodo() {
+      const inp = document.getElementById('todo-input');
+      if (!inp.value.trim()) return;
+      todos.push(inp.value.trim());
+      inp.value = '';
+      localStorage.setItem('jarvis_todos', JSON.stringify(todos));
+      renderTodos();
+      updateXP(5);
+    }
+    function removeTodo(i) {
+      todos.splice(i, 1);
+      localStorage.setItem('jarvis_todos', JSON.stringify(todos));
+      renderTodos();
+    }
+
+    let expenses = JSON.parse(localStorage.getItem('jarvis_exp') || '[]');
+    function renderExpenses() {
+      let total = 0;
+      document.getElementById('exp-list').innerHTML = expenses.map(e => {
+        total += Number(e.amount);
+        return `<div class="flex justify-between border-b border-current/15 py-1"><span>${e.name}</span><span>${Number(e.amount).toLocaleString()} so‘m</span></div>`;
+      }).join('');
+      document.getElementById('total-expense').innerText = `${total.toLocaleString()} SO‘M`;
+    }
+    function addExpense() {
+      const name = document.getElementById('exp-name').value.trim();
+      const amount = document.getElementById('exp-amount').value;
+      if (!name || !amount) return;
+      expenses.push({ name, amount });
+      localStorage.setItem('jarvis_exp', JSON.stringify(expenses));
+      document.getElementById('exp-name').value = '';
+      document.getElementById('exp-amount').value = '';
+      renderExpenses();
+    }
+
+    function generateQR() {
+      const val = encodeURIComponent(document.getElementById('qr-input').value.trim());
+      if (!val) return;
+      document.getElementById('qr-result').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${val}" class="rounded-lg border-2 border-cyan-400 p-1 bg-white" />`;
+    }
+
+    let vault = JSON.parse(localStorage.getItem('jarvis_vault') || '[]');
+    function renderVault() {
+      document.getElementById('vault-list').innerHTML = vault.map((v, i) => `
+        <div class="hud-box px-2.5 py-1.5 rounded-lg flex justify-between items-center">
+          <span>🔑 <b>${v.title}:</b> ${v.secret.slice(0, 4)}••••</span>
+          <button onclick="navigator.clipboard.writeText('${v.secret}'); alert('Nusxalandi!')" class="hud-btn px-2 py-0.5 rounded text-[10px]">NUSXA</button>
+        </div>`).join('');
+    }
+    function saveVault() {
+      const title = document.getElementById('vault-title').value.trim();
+      const secret = document.getElementById('vault-secret').value.trim();
+      if (!title || !secret) return;
+      vault.push({ title, secret });
+      localStorage.setItem('jarvis_vault', JSON.stringify(vault));
+      document.getElementById('vault-title').value = '';
+      document.getElementById('vault-secret').value = '';
+      renderVault();
+    }
+
+    function scanLink() {
+      const url = document.getElementById('scan-url').value.trim();
+      const out = document.getElementById('scan-output');
+      if (!url) return;
+      if (url.startsWith('https://')) {
+        out.innerText = '✅ HTTPS shifrlash mavjud. Asosiy protokol xavfsiz.';
+        out.className = 'text-xs mt-2 text-green-400';
+      } else {
+        out.innerText = '⚠️ Diqqat! Himoyalanmagan HTTP havola yoki noto‘g‘ri manzil.';
+        out.className = 'text-xs mt-2 text-red-400';
+      }
+    }
+
+    function updateApiKey() {
+      apiKey = document.getElementById('api-key-field').value.trim();
+      localStorage.setItem('jarvis_api_key', apiKey);
+      alert('API kalit xavfsiz saqlandi, janob!');
+    }
+    function exportMemory() {
+      const blob = new Blob([JSON.stringify({ todos, expenses, chatHistory, xp }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'jarvis_backup_bexzod.json';
+      a.click();
+    }
+    function cleanSlate() {
+      if (confirm('Barcha ma’lumotlar o‘chirilsinmi?')) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
