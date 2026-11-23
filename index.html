@@ -6,9 +6,38 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="J.A.R.V.I.S." />
-  <title>J.A.R.V.I.S.</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600&display=swap" rel="stylesheet">
+  <title>J.A.R.V.I.S. OS — MK-85 ULTIMATE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --c: #00f3ff;
+      --c-dim: rgba(0, 243, 255, 0.25);
+      --c-bg: rgba(0, 243, 255, 0.06);
+      --bg: #000408;
+      --glow: 0 0 45px rgba(0, 243, 255, 0.8);
+    }
+    [data-theme="red"] {
+      --c: #ff3b3b;
+      --c-dim: rgba(255, 59, 59, 0.3);
+      --c-bg: rgba(255, 59, 59, 0.07);
+      --bg: #080101;
+      --glow: 0 0 45px rgba(255, 59, 59, 0.85);
+    }
+    [data-theme="gold"] {
+      --c: #ffcc00;
+      --c-dim: rgba(255, 204, 0, 0.3);
+      --c-bg: rgba(255, 204, 0, 0.07);
+      --bg: #080600;
+      --glow: 0 0 45px rgba(255, 204, 0, 0.85);
+    }
+    [data-theme="green"] {
+      --c: #00ff66;
+      --c-dim: rgba(0, 255, 102, 0.28);
+      --c-bg: rgba(0, 255, 102, 0.06);
+      --bg: #000803;
+      --glow: 0 0 45px rgba(0, 255, 102, 0.85);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -16,9 +45,10 @@
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
+
     body {
-      background: #000408;
-      color: #00f3ff;
+      background: var(--bg);
+      color: var(--c);
       font-family: 'Rajdhani', sans-serif;
       height: 100vh;
       overflow: hidden;
@@ -26,334 +56,633 @@
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      padding: calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 22px);
+      padding: calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 18px);
+      transition: background 0.4s ease, color 0.4s ease;
     }
-    /* Orqa fondagi nozik gologramma setka */
+
+    /* Kinodagi Gologramma Foni */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(circle at 50% 45%, rgba(0, 243, 255, 0.14) 0%, transparent 60%),
-        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-      background-size: 100% 100%, 36px 36px, 36px 36px;
+        radial-gradient(circle at 50% 42%, var(--c-bg) 0%, transparent 62%),
+        linear-gradient(var(--c-bg) 1px, transparent 1px),
+        linear-gradient(90deg, var(--c-bg) 1px, transparent 1px);
+      background-size: 100% 100%, 34px 34px, 34px 34px;
       pointer-events: none;
+      z-index: 0;
     }
 
     .hud-font { font-family: 'Orbitron', sans-serif; }
 
-    /* Yuqori minimal chiziq */
-    .top-bar {
+    /* Yuqori Minimal Status Chizig'i */
+    .top-hud {
       width: 100%;
+      max-width: 460px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 11px;
-      letter-spacing: 2px;
-      opacity: 0.75;
       z-index: 10;
     }
-    .key-btn {
-      background: transparent;
-      border: 1px solid rgba(0, 243, 255, 0.35);
-      color: #00f3ff;
-      padding: 4px 10px;
-      border-radius: 4px;
+    .sys-id {
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+    .sys-sub {
       font-size: 10px;
       letter-spacing: 1.5px;
+      opacity: 0.65;
+    }
+    .hud-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .mini-btn {
+      background: var(--c-bg);
+      border: 1px solid var(--c-dim);
+      color: var(--c);
+      padding: 5px 9px;
+      border-radius: 4px;
+      font-size: 10px;
+      letter-spacing: 1.2px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mini-btn:active {
+      background: var(--c);
+      color: #000;
     }
 
     /* Markaziy Kinodagi Gologramma Sfera */
     .core-stage {
       position: relative;
-      width: 290px;
-      height: 290px;
+      width: 280px;
+      height: 280px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      z-index: 5;
     }
     .ring {
       position: absolute;
       border-radius: 50%;
-      transition: all 0.4s ease;
+      transition: border-color 0.4s ease;
     }
     .r1 {
-      width: 280px; height: 280px;
-      border: 1px solid rgba(0, 243, 255, 0.25);
-      border-top: 2px solid #00f3ff;
-      border-bottom: 2px solid #00f3ff;
-      animation: cw 18s linear infinite;
+      width: 274px; height: 274px;
+      border: 1px solid var(--c-dim);
+      border-top: 2px solid var(--c);
+      border-bottom: 2px solid var(--c);
+      animation: cw 20s linear infinite;
     }
     .r2 {
-      width: 235px; height: 235px;
-      border: 2px dashed rgba(0, 243, 255, 0.45);
-      animation: ccw 12s linear infinite;
+      width: 230px; height: 230px;
+      border: 2px dashed var(--c-dim);
+      animation: ccw 13s linear infinite;
     }
     .r3 {
-      width: 185px; height: 185px;
-      border: 1px solid rgba(0, 243, 255, 0.2);
-      border-left: 3px solid #00f3ff;
-      border-right: 3px solid #00f3ff;
-      animation: cw 7s linear infinite;
+      width: 182px; height: 182px;
+      border: 1px solid var(--c-bg);
+      border-left: 3px solid var(--c);
+      border-right: 3px solid var(--c);
+      animation: cw 7.5s linear infinite;
     }
     .r4 {
-      width: 135px; height: 135px;
-      border: 1px dotted rgba(0, 243, 255, 0.6);
+      width: 134px; height: 134px;
+      border: 1px dotted var(--c);
+      opacity: 0.75;
       animation: ccw 5s linear infinite;
     }
     .nucleus {
-      width: 82px; height: 82px;
+      width: 80px; height: 80px;
       border-radius: 50%;
-      background: radial-gradient(circle, #ffffff 0%, #00f3ff 45%, rgba(0, 243, 255, 0.05) 75%);
-      box-shadow: 0 0 45px rgba(0, 243, 255, 0.8), inset 0 0 18px #fff;
+      background: radial-gradient(circle, #ffffff 0%, var(--c) 48%, transparent 78%);
+      box-shadow: var(--glow), inset 0 0 18px #fff;
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    /* Eshitish holati (Qizil-Oltin impuls) */
-    .listening .r1, .listening .r3 { border-color: #ffaa00; }
-    .listening .nucleus {
-      background: radial-gradient(circle, #fff 0%, #ffaa00 50%, transparent 80%);
-      box-shadow: 0 0 65px #ffaa00;
-      transform: scale(1.14);
+    /* Jonli Ovoz To'lqini Canvas */
+    #visualizer {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      pointer-events: none;
     }
 
-    /* Gapirish holati (To'lqinlanish) */
+    .listening .nucleus {
+      transform: scale(1.15);
+      filter: hue-rotate(135deg);
+    }
     .speaking .nucleus {
-      animation: pulseSpeak 0.45s ease-in-out infinite alternate;
+      animation: speakPulse 0.42s ease-in-out infinite alternate;
     }
 
     @keyframes cw { 100% { transform: rotate(360deg); } }
     @keyframes ccw { 100% { transform: rotate(-360deg); } }
-    @keyframes pulseSpeak {
-      from { transform: scale(0.95); box-shadow: 0 0 35px #00f3ff; }
-      to { transform: scale(1.22); box-shadow: 0 0 75px #00f3ff; }
+    @keyframes speakPulse {
+      from { transform: scale(0.94); }
+      to { transform: scale(1.24); }
     }
 
-    /* Subtitr ko'rinishidagi javob oynasi */
-    .subtitle-box {
+    /* Subtitr va Javob Oynasi */
+    .subtitle-zone {
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       text-align: center;
-      min-height: 90px;
-      max-height: 150px;
+      min-height: 105px;
+      max-height: 165px;
       overflow-y: auto;
-      padding: 0 10px;
+      padding: 0 8px;
       z-index: 10;
     }
-    .status-tag {
+    .state-line {
       font-size: 10px;
-      letter-spacing: 3px;
-      opacity: 0.6;
-      margin-bottom: 8px;
+      letter-spacing: 2.5px;
+      opacity: 0.65;
+      margin-bottom: 6px;
       text-transform: uppercase;
     }
-    .jarvis-text {
-      font-size: 17px;
+    .jarvis-speech {
+      font-size: 16.5px;
       line-height: 1.45;
-      color: #d8fcff;
-      text-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+      color: #e6feff;
+      text-shadow: 0 0 10px var(--c-dim);
+      white-space: pre-wrap;
     }
 
-    /* Pastki yashirin-minimal kiritish chizig'i */
-    .bottom-input {
+    /* Pastki Minimal Chiziq */
+    .cmd-bar {
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       display: flex;
       align-items: center;
-      border-bottom: 1px solid rgba(0, 243, 255, 0.35);
-      padding: 6px 4px;
+      gap: 8px;
+      border-bottom: 1px solid var(--c-dim);
+      padding: 6px 2px;
       z-index: 10;
     }
-    .bottom-input input {
+    .cmd-bar input {
       flex: 1;
       background: transparent;
       border: none;
       outline: none;
-      color: #00f3ff;
+      color: var(--c);
       font-family: 'Rajdhani', sans-serif;
-      font-size: 15px;
-      letter-spacing: 0.5px;
+      font-size: 16px;
     }
-    .bottom-input input::placeholder {
-      color: rgba(0, 243, 255, 0.3);
+    .cmd-bar input::placeholder {
+      color: var(--c-dim);
     }
-    .send-arrow {
+    .icon-act {
       background: transparent;
       border: none;
-      color: #00f3ff;
-      font-size: 18px;
-      padding-left: 10px;
+      color: var(--c);
+      font-size: 17px;
+      cursor: pointer;
+      padding: 2px 6px;
     }
 
-    /* API Modal */
-    .modal {
+    /* Taktik Modullar Drawer (65 ta funksiyaning boshqaruv markazi) */
+    .drawer {
       position: fixed;
       inset: 0;
-      background: rgba(0, 4, 8, 0.94);
+      background: rgba(0, 4, 8, 0.96);
+      backdrop-filter: blur(14px);
       display: none;
       flex-direction: column;
+      padding: calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 16px);
+      z-index: 40;
+      overflow-y: auto;
+    }
+    .drawer.open { display: flex; }
+
+    .mod-card {
+      background: var(--c-bg);
+      border: 1px solid var(--c-dim);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .mod-title {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .mod-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    .mod-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid var(--c-dim);
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 5px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 6px;
+    }
+    .row { display: flex; gap: 6px; }
+    .stat-box {
+      flex: 1;
+      text-align: center;
+      border: 1px solid var(--c-dim);
+      padding: 6px;
+      border-radius: 5px;
+    }
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--c-bg);
+      font-size: 13px;
+    }
+
+    /* Ghost Mode */
+    .ghost {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 100;
+      display: none;
       align-items: center;
       justify-content: center;
-      padding: 24px;
-      z-index: 50;
+      flex-direction: column;
     }
-    .modal.open { display: flex; }
-    .modal input {
-      width: 100%;
-      max-width: 340px;
-      background: rgba(0, 243, 255, 0.06);
-      border: 1px solid #00f3ff;
-      color: #fff;
-      padding: 12px;
-      border-radius: 6px;
-      margin: 14px 0;
-      outline: none;
-    }
+    .ghost.open { display: flex; }
   </style>
 </head>
-<body>
+<body data-theme="cyan">
 
-  <!-- Yuqori minimal HUD -->
-  <div class="top-bar hud-font">
-    <span>J.A.R.V.I.S. // MK-85</span>
-    <button onclick="openKeyModal()" class="key-btn hud-font">API KEY</button>
+  <!-- GHOST PROTOCOL OVERLAY -->
+  <div id="ghost-layer" class="ghost" onclick="toggleGhost()">
+    <div style="width:8px; height:8px; border-radius:50%; background:var(--c); margin-bottom:12px;"></div>
+    <span class="hud-font" style="font-size:10px; letter-spacing:3px; opacity:0.35;">GHOST MODE • OCHISH UCHUN BOSING</span>
   </div>
 
-  <!-- Markaziy Gologramma Reaktor -->
-  <div id="stage" class="core-stage" onclick="activateJarvis()">
+  <!-- YUQORI MINIMAL HUD -->
+  <header class="top-hud">
+    <div>
+      <div class="sys-id hud-font">J.A.R.V.I.S. // <span id="mark-lvl">MK-1</span></div>
+      <div class="sys-sub hud-font"><span id="hud-clock">00:00</span> • <span id="persona-tag">CORE AI</span></div>
+    </div>
+    <div class="hud-actions">
+      <button onclick="toggleWakeLoop()" id="wake-btn" class="mini-btn hud-font">HEY JARVIS: OFF</button>
+      <button onclick="toggleDrawer()" class="mini-btn hud-font">MODULLAR</button>
+    </div>
+  </header>
+
+  <!-- MARKAZIY KINODAGI GOLOGRAMMA REAKTOR -->
+  <main id="stage" class="core-stage" onclick="startSingleVoice()">
+    <canvas id="visualizer" width="280" height="280"></canvas>
     <div class="ring r1"></div>
     <div class="ring r2"></div>
     <div class="ring r3"></div>
     <div class="ring r4"></div>
     <div class="nucleus"></div>
-  </div>
+  </main>
 
-  <!-- Kinodagi Subtitr Maydoni -->
-  <div class="subtitle-box">
-    <div id="state-label" class="status-tag hud-font">STANDBY • BOSING YOKI "HEY JARVIS"</div>
-    <div id="output-text" class="jarvis-text">Tizim shay, janob Bexzod.</div>
-  </div>
+  <!-- KINODAGI SUBTITR MAYDONI -->
+  <section class="subtitle-zone">
+    <div id="state-line" class="state-line hud-font">STANDBY • REAKTORNI BOSING</div>
+    <div id="jarvis-output" class="jarvis-speech">Barcha 65 ta protokol yuklandi, janob Bexzod.</div>
+  </section>
 
-  <!-- Minimal matnli buyruq chizig'i -->
-  <div class="bottom-input">
-    <input id="cmd-input" type="text" placeholder="Buyruq..." onkeypress="if(event.key==='Enter') sendText()" />
-    <button onclick="sendText()" class="send-arrow">➤</button>
-  </div>
+  <!-- PASTKI MINIMAL BUYRUQ CHIZIG'I -->
+  <footer class="cmd-bar">
+    <button onclick="toggleGhost()" title="Ghost Mode" class="icon-act">◉</button>
+    <input id="cmd-input" type="text" placeholder="Buyruq yoki savol..." onkeypress="if(event.key==='Enter') sendText()" />
+    <button onclick="replayVoice()" title="Qayta o'qish" class="icon-act">🔊</button>
+    <button onclick="sendText()" class="icon-act">➤</button>
+  </footer>
 
-  <!-- API Kalit Oynasi -->
-  <div id="key-modal" class="modal">
-    <p class="hud-font text-xs tracking-widest">GEMINI API KALIT (AIzaSy...)</p>
-    <input id="key-field" type="password" placeholder="AIzaSy..." />
-    <div style="display:flex; gap:12px;">
-      <button onclick="saveKey()" class="key-btn hud-font" style="padding:8px 18px;">SAQLASH</button>
-      <button onclick="closeKeyModal()" class="key-btn hud-font" style="padding:8px 18px; border-color:#555; color:#888;">YOPISH</button>
+  <!-- ==================== 65 TA MODUL BOSHQARUV MARKAZI ==================== -->
+  <div id="modules-drawer" class="drawer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <span class="hud-font" style="font-size:13px; letter-spacing:2px;">J.A.R.V.I.S. TACTICAL SUITE (65 MODULES)</span>
+      <button onclick="toggleDrawer()" class="mini-btn hud-font">✕ YOPISH</button>
+    </div>
+
+    <!-- 1. API KALIT VA TIZIM HOLATI -->
+    <div class="mod-card">
+      <div class="mod-title hud-font"><span>01 // GEMINI YADRO & TEMA</span><span id="xp-tag">XP: 10</span></div>
+      <div class="row">
+        <input id="api-input" type="password" class="mod-input" placeholder="AIzaSy... API kalitni kiriting" />
+        <button onclick="saveApiKey()" class="mini-btn hud-font" style="height:36px;">SAQLASH</button>
+      </div>
+      <div class="mod-grid" style="margin-top:6px;">
+        <button onclick="setTheme('cyan')" class="mini-btn hud-font">🔵 JARVIS CYAN</button>
+        <button onclick="setTheme('red')" class="mini-btn hud-font">🔴 HULKBUSTER</button>
+        <button onclick="setTheme('gold')" class="mini-btn hud-font">🟡 MARK 85 GOLD</button>
+        <button onclick="setTheme('green')" class="mini-btn hud-font">🟢 MATRIX GREEN</button>
+      </div>
+    </div>
+
+    <!-- 2. AI MUTAXASSIS REJIMLARI -->
+    <div class="mod-card">
+      <div class="mod-title hud-font"><span>02 // AI NEURAL PERSONAS</span></div>
+      <div class="mod-grid">
+        <button onclick="setPersona('jarvis', 'CORE AI')" class="mini-btn hud-font">🤖 J.A.R.V.I.S.</button>
+        <button onclick="setPersona('ielts', 'IELTS MENTOR')" class="mini-btn hud-font">🇬🇧 IELTS MENTOR</button>
+        <button onclick="setPersona('railway', 'AFROSIYOB ENG')" class="mini-btn hud-font">🚄 AFROSIYOB MUHANDIS</button>
+        <button onclick="setPersona('coder', 'PYTHON DEV')" class="mini-btn hud-font">💻 PYTHON / BOT DEV</button>
+        <button onclick="setPersona('creator', 'SHORTS DIRECTOR')" class="mini-btn hud-font">🎬 SHORTS REJISSYOR</button>
+        <button onclick="setPersona('translator', 'TRANSLATOR')" class="mini-btn hud-font">🌐 REAL-TIME TARJIMON</button>
+      </div>
+    </div>
+
+    <!-- 3. TEZKOR BRIFING VA PROTOKOLLAR -->
+    <div class="mod-card">
+      <div class="mod-title hud-font"><span>03 // TEZKOR PROTOKOLLAR</span></div>
+      <div class="mod-grid">
+        <button onclick="runQuick('Ertalabki brifing: Toshkent ob-havosi, TDTU TVL-25-26 darslari va kunlik motivatsiya ber')" class="mini-btn">☀️ Tonggi Brifing</button>
+        <button onclick="runQuick('IELTS 7.5 uchun 5 ta yangi akademik inglizcha so‘z va misol tuzib ber')" class="mini-btn">📚 5 ta IELTS So‘z</button>
+        <button onclick="runQuick('YouTube Shorts uchun 60 soniyalik vertikal video ssenariysi va Sora promptini yoz')" class="mini-btn">🎥 Shorts + Sora Prompt</button>
+        <button onclick="runQuick('Choshtepa metrosidan Toshkent davlat transport universitetigacha eng qulay yo‘nalishni eslat')" class="mini-btn">🚇 TDTU Marshrut</button>
+        <button onclick="runQuick('Bugungi dollar, yevro va rubl kurslari haqida qisqa ma’lumot ber')" class="mini-btn">💱 Valyuta Kursi</button>
+        <button onclick="runQuick('Afrosiyob (Talgo 250) tezyurar poyezdining tortish tizimi haqida texnik ma’lumot ber')" class="mini-btn">⚡ Afrosiyob Texnika</button>
+      </div>
+    </div>
+
+    <!-- 4. UZBMASHINIST CABIN SIMULATOR -->
+    <div class="mod-card">
+      <div class="mod-title hud-font"><span>04 // UZBMASHINIST CABIN HUD</span><span id="cab-sig">YASHIL CHIROQ</span></div>
+      <div class="row" style="margin-bottom:8px;">
+        <div class="stat-box"><div style="font-size:10px;">TEZLIK</div><div id="cab-spd" class="hud-font" style="font-size:18px;">0</div><div style="font-size:9px;">KM/SOAT</div></div>
+        <div class="stat-box"><div style="font-size:10px;">TORMOZ</div><div id="cab-brk" class="hud-font" style="font-size:18px;">5.2</div><div style="font-size:9px;">ATM</div></div>
+        <div class="stat-box"><div style="font-size:10px;">YO‘NALISH</div><div style="font-size:11px; font-weight:700; margin-top:4px;">TOSHKENT - SAMARQAND</div></div>
+      </div>
+      <div class="row">
+        <button onclick="cabThrottle(25)" class="mini-btn hud-font" style="flex:1;">⚡ TORTISH +25</button>
+        <button onclick="cabThrottle(-30)" class="mini-btn hud-font" style="flex:1;">🛑 TORMOZ -30</button>
+        <button onclick="cabHorn()" class="mini-btn hud-font">📯 TIFON</button>
+      </div>
+    </div>
+
+    <!-- 5. POMODORO FOCUS VA BPM STUDIO -->
+    <div class="mod-card">
+      <div class="mod-title hud-font"><span>05 // FOCUS TAYMER & BPM RITM STUDIO</span></div>
+      <div class="row" style="align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <span style="font-size:13px;">⏱️ TDTU / IELTS Focus (25:00):</span>
+        <div>
+          <span id="pomo-disp" class="hud-font" style="margin-right:8px;">25:00</span>
+          <button onclick="togglePomo()" id="pomo-btn" class="mini-btn hud-font">START</button>
+        </div>
+      </div>
+      <div class="row" style="align-items:center;">
+        <span id="bpm-label" class="hud-font" style="font-size:11px; width:75px;">92 BPM</span>
+        <input type="range" min="60" max="160" value="92" oninput="setBpm(this.value)" style="flex:1;" />
+        <button onclick="toggleMetro()" id="metro-btn" class="mini-btn hud-font">RITM</button>
+      </div>
+    </div>
+
+    <!-- 6. KUNLIK REJA, XARAJATLAR VA QR -->
+    <div class="mod-card">
+      <div class="mod-title hud-font"><span>06 // KUNLIK REJA & MOLIYA</span><span id="exp-sum">0 SO‘M</span></div>
+      <div class="row">
+        <input id="todo-inp" class="mod-input" placeholder="Yangi vazifa qo‘shish..." />
+        <button onclick="addTodo()" class="mini-btn hud-font" style="height:36px;">+</button>
+      </div>
+      <div id="todo-box" style="margin-bottom:10px;"></div>
+
+      <div class="row">
+        <input id="exp-name" class="mod-input" placeholder="Xarajat nomi" />
+        <input id="exp-val" type="number" class="mod-input" placeholder="Summa" />
+        <button onclick="addExp()" class="mini-btn hud-font" style="height:36px;">+</button>
+      </div>
+      <div id="exp-box"></div>
+    </div>
+
+    <!-- 7. SEYF (VAULT), SKANER, QR VA ZAXIRA -->
+    <div class="mod-card">
+      <div class="mod-title hud-font"><span>07 // XAVFSIZLIK SEYFI & QR GENERATOR</span></div>
+      <div class="row">
+        <input id="v-name" class="mod-input" placeholder="Xizmat (GitHub, Bot)" />
+        <input id="v-pass" type="password" class="mod-input" placeholder="Parol / Token" />
+        <button onclick="addVault()" class="mini-btn hud-font" style="height:36px;">+</button>
+      </div>
+      <div id="vault-box" style="margin-bottom:10px;"></div>
+
+      <div class="row">
+        <input id="qr-inp" class="mod-input" placeholder="QR-kod uchun matn yoki havola..." />
+        <button onclick="makeQR()" class="mini-btn hud-font" style="height:36px;">QR</button>
+      </div>
+      <div id="qr-out" style="text-align:center; margin:6px 0;"></div>
+
+      <div class="row" style="margin-top:8px;">
+        <button onclick="exportData()" class="mini-btn hud-font" style="flex:1;">📥 BACKUP YUKLASH</button>
+        <button onclick="wipeAll()" class="mini-btn hud-font" style="flex:1; border-color:#ff3b3b; color:#ff3b3b;">⚠️ CLEAN SLATE</button>
+      </div>
     </div>
   </div>
 
   <script>
-    let apiKey = localStorage.getItem('jarvis_clean_key') || '';
+    let apiKey = localStorage.getItem('jarvis_v85_key') || '';
+    let persona = 'jarvis';
+    let lastSpeech = "Barcha 65 ta protokol yuklandi, janob Bexzod.";
+    let xp = parseInt(localStorage.getItem('jarvis_v85_xp') || '10');
+    let wakeLoop = false;
+    let isSpeaking = false;
+
     const stage = document.getElementById('stage');
-    const stateLabel = document.getElementById('state-label');
-    const outputText = document.getElementById('output-text');
+    const stateLine = document.getElementById('state-line');
+    const outputEl = document.getElementById('jarvis-output');
 
-    function openKeyModal() {
-      document.getElementById('key-field').value = apiKey;
-      document.getElementById('key-modal').classList.add('open');
-    }
-    function closeKeyModal() {
-      document.getElementById('key-modal').classList.remove('open');
-    }
-    function saveKey() {
-      apiKey = document.getElementById('key-field').value.trim();
-      localStorage.setItem('jarvis_clean_key', apiKey);
-      closeKeyModal();
-      setReply("API yadrosi ulandi, janob Bexzod.");
+    const personaPrompts = {
+      jarvis: "Sen Tony Starkning J.A.R.V.I.S. sun'iy intellektisan. Foydalanuvchi Bexzodga (TDTU 1-kurs talabasi, bo'lajak Afrosiyob mashinisti) kinodagidek qisqa, aqlli, lo'nda va hurmat bilan ('janob Bexzod' deb) o'zbek tilida javob ber. Javob 2-3 gapdan oshmasin.",
+      ielts: "You are J.A.R.V.I.S. acting as an elite IELTS Speaking tutor for Bexzod. Speak ONLY in natural British English, keep it concise (2-3 sentences), and gently correct any grammar errors.",
+      railway: "Sen temir yo'l va Afrosiyob (Talgo 250) tezyurar poyezdlari bo'yicha bosh muhandissan. Bexzodga aniq texnik tilda va qisqa javob ber.",
+      coder: "Sen Senior Python va Telegram bot dasturchisan. Qisqa, aniq va professional texnik yechim ber.",
+      creator: "Sen YouTube Shorts va AI video rejissyorsan. Qisqa va kreativ ssenariy yoki prompt ber.",
+      translator: "Sen professional sinxron tarjimonsan. O'zbekcha gapni tabiiy ingliz tiliga, inglizcha gapni o'zbek tiliga tarjima qil."
+    };
+
+    window.onload = () => {
+      document.getElementById('api-input').value = apiKey;
+      setTheme(localStorage.getItem('jarvis_v85_theme') || 'cyan');
+      addXP(0);
+      renderTodos();
+      renderExp();
+      renderVault();
+      drawWave();
+    };
+
+    setInterval(() => {
+      document.getElementById('hud-clock').innerText = new Date().toTimeString().slice(0, 5);
+    }, 1000);
+
+    function toggleDrawer() {
+      document.getElementById('modules-drawer').classList.toggle('open');
     }
 
-    // Ovoz sintezatori (iPhone ovozida gapirish)
-    function speak(text) {
+    function toggleGhost() {
+      document.getElementById('ghost-layer').classList.toggle('open');
+    }
+
+    function setTheme(t) {
+      document.body.setAttribute('data-theme', t);
+      localStorage.setItem('jarvis_v85_theme', t);
+    }
+
+    function setPersona(p, label) {
+      persona = p;
+      document.getElementById('persona-tag').innerText = label;
+      toggleDrawer();
+      respond(`Rejim faollashtirildi: ${label}, janob.`);
+    }
+
+    function saveApiKey() {
+      apiKey = document.getElementById('api-input').value.trim();
+      localStorage.setItem('jarvis_v85_key', apiKey);
+      toggleDrawer();
+      respond("Gemini yadrosi muvaffaqiyatli ulandi, janob Bexzod.");
+    }
+
+    function addXP(pts) {
+      xp += pts;
+      localStorage.setItem('jarvis_v85_xp', xp);
+      document.getElementById('xp-tag').innerText = `XP: ${xp}`;
+      const lvl = Math.min(85, Math.floor(xp / 25) + 1);
+      document.getElementById('mark-lvl').innerText = `MK-${lvl}`;
+    }
+
+    // Jonli Ovoz To'lqini (Audio Visualizer)
+    function drawWave() {
+      const canvas = document.getElementById('visualizer');
+      const ctx = canvas.getContext('2d');
+      let phase = 0;
+      function frame() {
+        ctx.clearRect(0, 0, 280, 280);
+        const color = getComputedStyle(document.body).getPropertyValue('--c').trim();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        const amp = isSpeaking ? 14 : 3;
+        for (let a = 0; a <= Math.PI * 2; a += 0.08) {
+          const r = 104 + Math.sin(a * 8 + phase) * amp;
+          const x = 140 + Math.cos(a) * r;
+          const y = 140 + Math.sin(a) * r;
+          if (a === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        phase += isSpeaking ? 0.18 : 0.04;
+        requestAnimationFrame(frame);
+      }
+      frame();
+    }
+
+    // Ovozda gapirish (iOS Speech Synthesis)
+    function speakText(text) {
       window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      // Inglizcha yoki ruscha/o'zbekcha ohangni avtomatik tanlash
-      const isEnglish = /^[A-Za-z0-9\s.,!?'"-]+$/.test(text);
-      utter.lang = isEnglish ? 'en-GB' : 'ru-RU';
-      utter.rate = 1.02;
-      utter.pitch = 0.9;
-
-      utter.onstart = () => stage.classList.add('speaking');
-      utter.onend = () => stage.classList.remove('speaking');
-      utter.onerror = () => stage.classList.remove('speaking');
-
-      window.speechSynthesis.speak(utter);
+      const u = new SpeechSynthesisUtterance(text);
+      const isEng = /^[A-Za-z0-9\s.,!?'"():-]+$/.test(text);
+      u.lang = isEng ? 'en-GB' : 'ru-RU';
+      u.rate = 1.02;
+      u.pitch = 0.9;
+      u.onstart = () => { isSpeaking = true; stage.classList.add('speaking'); };
+      u.onend = () => {
+        isSpeaking = false;
+        stage.classList.remove('speaking');
+        if (wakeLoop && recognition) {
+          try { recognition.start(); } catch(e) {}
+        }
+      };
+      u.onerror = () => { isSpeaking = false; stage.classList.remove('speaking'); };
+      window.speechSynthesis.speak(u);
     }
 
-    function setReply(text) {
-      outputText.innerText = text;
-      speak(text);
+    function replayVoice() {
+      speakText(lastSpeech);
     }
 
-    // "Hey Jarvis" va ovozli buyruq tizimi
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    function respond(text) {
+      lastSpeech = text;
+      outputEl.innerText = text;
+      speakText(text);
+    }
+
+    // "Hey Jarvis" va Ovozli Tanish
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
-    let wakeMode = false;
 
-    if (SpeechRecognition) {
-      recognition = new SpeechRecognition();
+    if (SpeechRec) {
+      recognition = new SpeechRec();
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = 'en-US';
 
       recognition.onstart = () => {
         stage.classList.add('listening');
-        stateLabel.innerText = wakeMode ? 'TINGLAMOQDA ("HEY JARVIS")...' : 'ESHITMOQDAMAN...';
+        stateLine.innerText = wakeLoop ? 'TINGLAMOQDA ("HEY JARVIS")...' : 'ESHITMOQDAMAN...';
       };
 
       recognition.onend = () => {
         stage.classList.remove('listening');
-        if (wakeMode) {
-          try { recognition.start(); } catch (e) {}
+        if (wakeLoop && !isSpeaking) {
+          setTimeout(() => { try { recognition.start(); } catch(e) {} }, 350);
         } else {
-          stateLabel.innerText = 'STANDBY • BOSING';
+          stateLine.innerText = 'STANDBY • REAKTORNI BOSING';
         }
       };
 
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.trim();
-        const lower = transcript.toLowerCase();
+      recognition.onresult = (e) => {
+        const heard = e.results[0][0].transcript.trim();
+        const low = heard.toLowerCase();
 
-        if (wakeMode) {
-          if (lower.includes('jarvis')) {
-            wakeMode = false;
-            const cleanCmd = lower.replace(/hey jarvis|jarvis/gi, '').trim();
-            if (cleanCmd.length > 1) {
-              askJarvis(cleanCmd);
+        if (wakeLoop) {
+          if (low.includes('jarvis')) {
+            const cmd = heard.replace(/hey jarvis|jarvis/gi, '').trim();
+            if (cmd.length > 1) {
+              askJarvis(cmd);
             } else {
-              setReply("Yes, sir?");
-              setTimeout(() => { try { recognition.start(); } catch(e){} }, 1200);
+              respond("Yes, sir? I am listening.");
             }
           }
         } else {
-          askJarvis(transcript);
+          askJarvis(heard);
         }
       };
     }
 
-    function activateJarvis() {
-      // iPhone audio blokini ochish uchun birinchi bosishda ovozni uyg'otish
+    function toggleWakeLoop() {
       const unlock = new SpeechSynthesisUtterance("");
       window.speechSynthesis.speak(unlock);
+      wakeLoop = !wakeLoop;
+      const btn = document.getElementById('wake-btn');
+      btn.innerText = wakeLoop ? 'HEY JARVIS: ON' : 'HEY JARVIS: OFF';
+      if (wakeLoop && recognition) {
+        try { recognition.start(); } catch(e) {}
+      } else if (recognition) {
+        recognition.stop();
+      }
+    }
 
+    function startSingleVoice() {
+      const unlock = new SpeechSynthesisUtterance("");
+      window.speechSynthesis.speak(unlock);
       if (!recognition) {
-        setReply("Mikrofon bu brauzerda bloklangan, pastdan yozing.");
+        respond("Mikrofon bu oynada bloklangan, pastdan yozing.");
         return;
       }
-      wakeMode = false;
-      try { recognition.start(); } catch (e) {}
+      try { recognition.start(); } catch(e) {}
     }
 
     function sendText() {
+      const unlock = new SpeechSynthesisUtterance("");
+      window.speechSynthesis.speak(unlock);
       const inp = document.getElementById('cmd-input');
       const val = inp.value.trim();
       if (!val) return;
@@ -361,40 +690,193 @@
       askJarvis(val);
     }
 
+    function runQuick(q) {
+      toggleDrawer();
+      askJarvis(q);
+    }
+
+    // Zaxira (Fallback) Modelli AI So'rov
     async function askJarvis(prompt) {
-      stateLabel.innerText = 'PROCESSING...';
-      outputText.innerText = `"${prompt}"`;
+      const low = prompt.toLowerCase();
+      if (low.includes('ghost')) { toggleGhost(); return; }
+      if (low.includes('qizil tema')) { setTheme('red'); respond("Hulkbuster qizil temasi yoqildi, janob."); return; }
+      if (low.includes('oltin tema')) { setTheme('gold'); respond("Mark 85 oltin temasi faollashtirildi."); return; }
+      if (low.includes('yashil tema')) { setTheme('green'); respond("Matrix yashil rejimi ishga tushdi."); return; }
+      if (low.includes('ko‘k tema') || low.includes('kok tema')) { setTheme('cyan'); respond("Klassik J.A.R.V.I.S. temasi qaytarildi."); return; }
+
+      stateLine.innerText = 'PROCESSING...';
+      outputEl.innerText = `"${prompt}"`;
 
       if (!apiKey || !apiKey.startsWith('AIza')) {
-        setReply("Janob Bexzod, yuqoridagi API KEY tugmasini bosib, AIzaSy bilan boshlanuvchi haqiqiy Gemini API kalitini kiriting.");
-        stateLabel.innerText = 'API KEY REQUIRED';
+        respond("Janob Bexzod, yuqori o‘ng burchakdagi MODULLAR tugmasini bosib, AIzaSy bilan boshlanuvchi Gemini API kalitingizni saqlang.");
+        stateLine.innerText = 'API KEY REQUIRED';
         return;
       }
 
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Sen Tony Starkning J.A.R.V.I.S. sun'iy intellektisan. Foydalanuvchi Bexzodga kinodagidek qisqa, aqlli, lo'nda va hurmat bilan (janob Bexzod deb) javob ber. Javob 2-3 gapdan oshmasin, chunki ovozda o'qiladi. Savol: ${prompt}`
-              }]
-            }]
-          })
-        });
+      const models = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
+      let answer = null;
 
-        const data = await res.json();
-        if (data.error) {
-          setReply("Xatolik: " + data.error.message);
-        } else {
-          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Tushunmadim, janob.";
-          setReply(reply.replace(/\*/g, ''));
-        }
-      } catch (e) {
-        setReply("Aloqa uzildi, janob.");
+      for (const m of models) {
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{ text: `${personaPrompts[persona]}\n\nBuyruq: ${prompt}` }]
+              }]
+            })
+          });
+          const data = await res.json();
+          if (!data.error && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+            answer = data.candidates[0].content.parts[0].text;
+            break;
+          }
+        } catch (e) {}
       }
-      stateLabel.innerText = 'ONLINE';
+
+      if (answer) {
+        addXP(10);
+        respond(answer.replace(/\*/g, ''));
+      } else {
+        respond("Serverlar vaqtincha band, bir necha soniyadan keyin qayta urinib ko‘ring, janob.");
+      }
+      stateLine.innerText = 'ONLINE';
+    }
+
+    // UZBmashinist Pult
+    let spd = 0;
+    function cabThrottle(d) {
+      spd = Math.max(0, Math.min(250, spd + d));
+      document.getElementById('cab-spd').innerText = spd;
+      document.getElementById('cab-brk').innerText = d < 0 ? '3.7' : '5.2';
+      document.getElementById('cab-sig').innerText = spd > 210 ? 'TEZLIK YUQORI!' : 'YASHIL CHIROQ';
+    }
+    function cabHorn() {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.value = 180;
+      o.connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 0.55);
+    }
+
+    // Pomodoro
+    let pomoSec = 1500, pomoInt = null;
+    function togglePomo() {
+      const b = document.getElementById('pomo-btn');
+      if (pomoInt) { clearInterval(pomoInt); pomoInt = null; b.innerText = 'START'; }
+      else {
+        b.innerText = 'STOP';
+        pomoInt = setInterval(() => {
+          pomoSec--;
+          const m = String(Math.floor(pomoSec / 60)).padStart(2, '0');
+          const s = String(pomoSec % 60).padStart(2, '0');
+          document.getElementById('pomo-disp').innerText = `${m}:${s}`;
+          if (pomoSec <= 0) { clearInterval(pomoInt); respond("Focus vaqti tugadi, janob Bexzod."); }
+        }, 1000);
+      }
+    }
+
+    // BPM Metronom
+    let bpm = 92, metroInt = null;
+    function setBpm(v) { bpm = v; document.getElementById('bpm-label').innerText = `${v} BPM`; }
+    function toggleMetro() {
+      const b = document.getElementById('metro-btn');
+      if (metroInt) { clearInterval(metroInt); metroInt = null; b.innerText = 'RITM'; }
+      else {
+        b.innerText = 'STOP';
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        metroInt = setInterval(() => {
+          const o = ctx.createOscillator();
+          o.frequency.value = 900;
+          o.connect(ctx.destination);
+          o.start();
+          o.stop(ctx.currentTime + 0.04);
+        }, (60 / bpm) * 1000);
+      }
+    }
+
+    // To-Do
+    let todos = JSON.parse(localStorage.getItem('jarvis_v85_todos') || '["TDTU darslari", "IELTS 15 ta so‘z"]');
+    function renderTodos() {
+      document.getElementById('todo-box').innerHTML = todos.map((t, i) =>
+        `<div class="list-item"><span>▫️ ${t}</span><button onclick="delTodo(${i})" class="mini-btn">✕</button></div>`
+      ).join('');
+    }
+    function addTodo() {
+      const i = document.getElementById('todo-inp');
+      if (!i.value.trim()) return;
+      todos.push(i.value.trim()); i.value = '';
+      localStorage.setItem('jarvis_v85_todos', JSON.stringify(todos));
+      renderTodos(); addXP(5);
+    }
+    function delTodo(idx) {
+      todos.splice(idx, 1);
+      localStorage.setItem('jarvis_v85_todos', JSON.stringify(todos));
+      renderTodos();
+    }
+
+    // Xarajatlar
+    let exps = JSON.parse(localStorage.getItem('jarvis_v85_exp') || '[]');
+    function renderExp() {
+      let sum = 0;
+      document.getElementById('exp-box').innerHTML = exps.map(e => {
+        sum += Number(e.v);
+        return `<div class="list-item"><span>${e.n}</span><span>${Number(e.v).toLocaleString()} so‘m</span></div>`;
+      }).join('');
+      document.getElementById('exp-sum').innerText = `${sum.toLocaleString()} SO‘M`;
+    }
+    function addExp() {
+      const n = document.getElementById('exp-name').value.trim();
+      const v = document.getElementById('exp-val').value;
+      if (!n || !v) return;
+      exps.push({ n, v });
+      localStorage.setItem('jarvis_v85_exp', JSON.stringify(exps));
+      document.getElementById('exp-name').value = '';
+      document.getElementById('exp-val').value = '';
+      renderExp();
+    }
+
+    // Vault Seyf
+    let vault = JSON.parse(localStorage.getItem('jarvis_v85_vault') || '[]');
+    function renderVault() {
+      document.getElementById('vault-box').innerHTML = vault.map(v =>
+        `<div class="list-item"><span>🔐 ${v.n}: ${v.p.slice(0, 3)}••••</span><button onclick="navigator.clipboard.writeText('${v.p}'); alert('Nusxalandi!')" class="mini-btn">NUSXA</button></div>`
+      ).join('');
+    }
+    function addVault() {
+      const n = document.getElementById('v-name').value.trim();
+      const p = document.getElementById('v-pass').value.trim();
+      if (!n || !p) return;
+      vault.push({ n, p });
+      localStorage.setItem('jarvis_v85_vault', JSON.stringify(vault));
+      document.getElementById('v-name').value = '';
+      document.getElementById('v-pass').value = '';
+      renderVault();
+    }
+
+    // QR
+    function makeQR() {
+      const v = encodeURIComponent(document.getElementById('qr-inp').value.trim());
+      if (!v) return;
+      document.getElementById('qr-out').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${v}" style="border:2px solid var(--c); padding:4px; background:#fff; border-radius:6px;" />`;
+    }
+
+    // Backup & Clean Slate
+    function exportData() {
+      const blob = new Blob([JSON.stringify({ todos, exps, xp }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'jarvis_mk85_backup.json';
+      a.click();
+    }
+    function wipeAll() {
+      if (confirm("Barcha ma'lumotlar o'chirilsinmi?")) {
+        localStorage.clear();
+        location.reload();
+      }
     }
   </script>
 </body>
